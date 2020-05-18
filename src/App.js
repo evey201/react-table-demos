@@ -1,48 +1,80 @@
-import React from 'react';
-import { useTable } from "react-table";
-import './App.css';
+import React from "react";
+import { useTable, useSortBy, useFilters, useGlobalFilter } from "react-table";
 
-function App() {
-  
-  const data = [
-    { firstName: "jane", lastName: "doe", age: 20 },
-    { firstName: "john", lastName: "smith", age: 21 }
-  ];
+const data = [
+  { firstName: "jane", lastName: "doe" },
+  { firstName: "john", lastName: "smith" }
+];
 
-  const columns = [
+const columns = [
+  {
+    Header: "Name",
+    columns: [
+      {
+        Header: "First Name",
+        accessor: "firstName",
+        sortType: "basic"
+      },
+      {
+        Header: "Last Name",
+        accessor: "lastName",
+        sortType: "basic"
+      }
+    ]
+  }
+];
+
+const Table = ({ columns, data }) => {
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow
+  } = useTable(
     {
-      Header: "Name",
-      columns: [
-        {
-          Header: "First Name",
-          accessor: "firstName"
-        },
-        {
-          Header: "Last Name",
-          accessor: "lastName"
-        }
-      ]
+      columns,
+      data
     },
-    {
-      Header: "Other Info",
-      columns: [
-        {
-          Header: "Age",
-          accessor: "age"
-        }
-      ]
-    }
-  ];
+    useSortBy
+  );
 
-  
-  
-  
-  
+  return (
+    <table {...getTableProps()}>
+      <thead>
+        {headerGroups.map(headerGroup => (
+          <tr {...headerGroup.getHeaderGroupProps()}>
+            {headerGroup.headers.map(column => (
+              <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                {column.render("Header")}
+                <span>
+                  {column.isSorted ? (column.isSortedDesc ? " 🔽" : " 🔼") : ""}
+                </span>
+              </th>
+            ))}
+          </tr>
+        ))}
+      </thead>
+      <tbody {...getTableBodyProps()}>
+        {rows.map((row, i) => {
+          prepareRow(row);
+          return (
+            <tr {...row.getRowProps()}>
+              {row.cells.map(cell => {
+                return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
+              })}
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+};
+
+export default function App() {
   return (
     <div className="App">
-      
+      <Table columns={columns} data={data} />
     </div>
   );
 }
-
-export default App;
